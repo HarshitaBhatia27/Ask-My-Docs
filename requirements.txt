@@ -1,3 +1,5 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 langchain
 langchain-community
 langchain-core
@@ -5,12 +7,19 @@ langchain-text-splitters
 langchain-huggingface
 langchain-chroma
 langchain-groq
+
 chromadb
 pypdf
 python-dotenv
-sentence-transformers
+
+sentence-transformers==2.7.0
 rank_bm25
+
 fastapi
 uvicorn
 streamlit
 python-multipart
+
+ragas==0.1.10
+
+torch

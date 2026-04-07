@@ -19,7 +19,7 @@ if uploaded_file:
     if uploaded_file.name != st.session_state.last_file:
         with st.spinner("Reading and indexing your document..."):
             files = {"file": (uploaded_file.name, uploaded_file, "application/pdf")}
-            index_response = requests.post("http://localhost:8000/upload", files=files)
+            index_response = requests.post("http://fastapi:8000/upload", files=files)
 
         if index_response.status_code == 200:
             st.session_state.indexed = True
@@ -45,7 +45,7 @@ if st.session_state.indexed:
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 response = requests.post(
-                    "http://localhost:8000/ask",
+                    "http://fastapi:8000/ask",
                     json={"question": question},
                     timeout=120
                 )

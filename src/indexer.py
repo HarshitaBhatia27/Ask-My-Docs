@@ -10,10 +10,16 @@ DB_PATH = "./local_chroma_db"
 
 def build_vector_store_from_file(file_path: str):
     if os.path.exists(DB_PATH):
-        shutil.rmtree(DB_PATH)
-        time.sleep(1)  # wait for OS to release file lock
+        # Delete contents, not the directory itself (volume mount stays intact)
+        for item in os.listdir(DB_PATH):
+            item_path = os.path.join(DB_PATH, item)
+            if os.path.isfile(item_path) or os.path.islink(item_path):
+                os.unlink(item_path)
+            elif os.path.isdir(item_path):
+                shutil.rmtree(item_path)
         print("Cleared old vector store")
-
+    else:
+        os.makedirs(DB_PATH, exist_ok=True)
     print(f"Loading {file_path}...")
     loader = PyPDFLoader(file_path)
     documents = loader.load()
