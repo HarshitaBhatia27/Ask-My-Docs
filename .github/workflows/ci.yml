@@ -52,6 +52,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set lowercase image name
+        # GHCR requires all-lowercase image names.
+        # github.repository returns "HarshitaBhatia27/Ask-My-Docs" which has
+        # uppercase letters — this step converts it to a valid image name.
+        run: echo "IMAGE_NAME=$(echo 'ghcr.io/${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -68,8 +74,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
           # GitHub Actions cache keeps Docker layers between runs
           cache-from: type=gha
           cache-to: type=gha,mode=max
