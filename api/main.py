@@ -25,6 +25,9 @@ def root():
 
 @app.post("/upload")
 async def upload_pdf(file: UploadFile = File(...)):
+    # ensure data/ directory exists (may not exist in a fresh container)
+    os.makedirs("data", exist_ok=True)
+
     # save uploaded file temporarily
     temp_path = f"data/uploaded_{file.filename}"
     with open(temp_path, "wb") as f:
