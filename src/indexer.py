@@ -4,7 +4,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
-from src.chat_model import get_embeddings
+from src.retriever import get_embeddings_cached as get_embeddings
 
 DB_PATH = os.getenv("CHROMA_PATH", "/tmp/local_chroma_db")
 
