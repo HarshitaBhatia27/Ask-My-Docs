@@ -8,4 +8,10 @@ def get_llm():
     return ChatGroq(model="llama-3.3-70b-versatile", groq_api_key=api_key)
 
 def get_embeddings():
-    return HuggingFaceEmbeddings(model_name="BAAI/bge-small-en")
+    return HuggingFaceEmbeddings(
+        model_name="BAAI/bge-small-en",
+        encode_kwargs={
+            "batch_size": 64,           # process 64 chunks at once instead of 1
+            "normalize_embeddings": True # BGE models are trained with normalization
+        }
+    )

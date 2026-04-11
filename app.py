@@ -18,12 +18,15 @@ if "last_file" not in st.session_state:
 uploaded_file = st.file_uploader("Upload your PDF", type="pdf")
 
 if uploaded_file and uploaded_file.name != st.session_state.last_file:
+    file_size_mb = uploaded_file.size / (1024 * 1024)
+    if file_size_mb > 5:
+        st.info(f"Large file ({file_size_mb:.1f} MB). Indexing runs on CPU — expect 2–4 minutes. Hang tight.")
     with st.spinner("Reading and indexing your document..."):
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
             tmp.write(uploaded_file.read())
             tmp_path = tmp.name
         build_vector_store_from_file(tmp_path)
-        reload_vector_store()  #loads the new index into retriever
+        reload_vector_store()
         st.session_state.indexed = True
         st.session_state.last_file = uploaded_file.name
         st.session_state.messages = []
