@@ -6,7 +6,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from src.chat_model import get_embeddings
 
-DB_PATH = "./local_chroma_db"
+DB_PATH = os.getenv("CHROMA_PATH", "/tmp/local_chroma_db")
 
 def build_vector_store_from_file(file_path: str):
     if os.path.exists(DB_PATH):
