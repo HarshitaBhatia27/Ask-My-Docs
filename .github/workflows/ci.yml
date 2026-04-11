@@ -88,7 +88,21 @@ jobs:
 
     steps:
       - name: Deploy API service to Render
-        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_API }}"
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_API }}
+        run: |
+          if [ -n "$HOOK" ]; then
+            curl -X POST "$HOOK"
+          else
+            echo "RENDER_DEPLOY_HOOK_API not set yet — skipping"
+          fi
 
       - name: Deploy UI service to Render
-        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_UI }}"
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_UI }}
+        run: |
+          if [ -n "$HOOK" ]; then
+            curl -X POST "$HOOK"
+          else
+            echo "RENDER_DEPLOY_HOOK_UI not set yet — skipping"
+          fi
