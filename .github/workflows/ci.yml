@@ -80,29 +80,29 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # ── Job 3: Deploy to Render (runs after image is pushed) ──────────────────
+  # ── Job 3: Deploy to Hugging Face Spaces ─────────────────────────────────
+  # Pushes the repo to HF Spaces via git. HF Spaces then builds the Docker
+  # image from the Dockerfile and deploys automatically.
+  # Requires HF_TOKEN secret — a Hugging Face access token with write access.
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-push
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
-      - name: Deploy API service to Render
-        env:
-          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_API }}
-        run: |
-          if [ -n "$HOOK" ]; then
-            curl -X POST "$HOOK"
-          else
-            echo "RENDER_DEPLOY_HOOK_API not set yet — skipping"
-          fi
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history needed for git push
 
-      - name: Deploy UI service to Render
+      - name: Deploy to Hugging Face Spaces
         env:
-          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_UI }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          if [ -n "$HOOK" ]; then
-            curl -X POST "$HOOK"
+          if [ -n "$HF_TOKEN" ]; then
+            git config user.email "ci@github.com"
+            git config user.name "GitHub Actions"
+            git push https://HarshitaBhatia27:${HF_TOKEN}@huggingface.co/spaces/HarshitaBhatia27/askmydocs main --force
           else
-            echo "RENDER_DEPLOY_HOOK_UI not set yet — skipping"
+            echo "HF_TOKEN not set yet — skipping deploy"
           fi

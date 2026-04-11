@@ -2,9 +2,9 @@ import os
 import streamlit as st
 import requests
 
-# In Docker Compose, FastAPI is reachable at http://fastapi:8000 (service name).
-# In production (Render), set API_URL to the deployed FastAPI service URL.
-API_URL = os.getenv("API_URL", "http://fastapi:8000")
+# Defaults to localhost:8000 (same container, used in HF Spaces and local runs).
+# In Docker Compose, override with API_URL=http://fastapi:8000.
+API_URL = os.getenv("API_URL", "http://localhost:8000")
 
 st.set_page_config(page_title="AskMyDocs", page_icon="📚")
 st.title("📚 AskMyDocs")
