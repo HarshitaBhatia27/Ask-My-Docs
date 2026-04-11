@@ -1,10 +1,8 @@
 import os
 import streamlit as st
-import requests
-
-# Defaults to localhost:8000 (same container, used in HF Spaces and local runs).
-# In Docker Compose, override with API_URL=http://fastapi:8000.
-API_URL = os.getenv("API_URL", "http://localhost:8000")
+from src.indexer import build_vector_store_from_file
+from src.retriever import ask, reload_vector_store
+import tempfile
 
 st.set_page_config(page_title="AskMyDocs", page_icon="📚")
 st.title("📚 AskMyDocs")
@@ -19,19 +17,16 @@ if "last_file" not in st.session_state:
 
 uploaded_file = st.file_uploader("Upload your PDF", type="pdf")
 
-if uploaded_file:
-    # only index if this is a NEW file we haven't indexed yet
-    if uploaded_file.name != st.session_state.last_file:
-        with st.spinner("Reading and indexing your document..."):
-            files = {"file": (uploaded_file.name, uploaded_file, "application/pdf")}
-            index_response = requests.post(f"{API_URL}/upload", files=files)
-
-        if index_response.status_code == 200:
-            st.session_state.indexed = True
-            st.session_state.last_file = uploaded_file.name
-            st.session_state.messages = []  # clear old chat
-        else:
-            st.error("Something went wrong while indexing the document.")
+if uploaded_file and uploaded_file.name != st.session_state.last_file:
+    with st.spinner("Reading and indexing your document..."):
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+            tmp.write(uploaded_file.read())
+            tmp_path = tmp.name
+        build_vector_store_from_file(tmp_path)
+        reload_vector_store()  #loads the new index into retriever
+        st.session_state.indexed = True
+        st.session_state.last_file = uploaded_file.name
+        st.session_state.messages = []
 
 if st.session_state.indexed:
     st.success(f"✅ {st.session_state.last_file} is ready!")
@@ -41,19 +36,12 @@ if st.session_state.indexed:
             st.write(msg["content"])
 
     question = st.chat_input("Ask a question about your document...")
-
     if question:
         st.session_state.messages.append({"role": "user", "content": question})
         with st.chat_message("user"):
             st.write(question)
-
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
-                response = requests.post(
-                    f"{API_URL}/ask",
-                    json={"question": question},
-                    timeout=120
-                )
-                answer = response.json()["answer"]
+                answer = ask(question)
             st.write(answer)
             st.session_state.messages.append({"role": "assistant", "content": answer})

@@ -7,7 +7,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from sentence_transformers import CrossEncoder
 from src.chat_model import get_llm, get_embeddings
 
-DB_PATH = "./local_chroma_db"
+DB_PATH = os.getenv("CHROMA_PATH", "/tmp/local_chroma_db")
 
 model = get_llm()
 embeddings = get_embeddings()
