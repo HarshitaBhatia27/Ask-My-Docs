@@ -66,7 +66,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}  # auto-provided by GitHub, no setup needed
+          password: ${{ secrets.GITHUB_TOKEN }}  
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -80,7 +80,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # ── Job 3: Deploy to Hugging Face Spaces ─────────────────────────────────
+  # Deploy to Hugging Face Spaces
   # Pushes the repo to HF Spaces via git. HF Spaces then builds the Docker
   # image from the Dockerfile and deploys automatically.
   # Requires HF_TOKEN secret — a Hugging Face access token with write access.
@@ -102,7 +102,7 @@ jobs:
           if [ -n "$HF_TOKEN" ]; then
             git config user.email "ci@github.com"
             git config user.name "GitHub Actions"
-            git push https://HarshitaBhatia27:${HF_TOKEN}@huggingface.co/spaces/HarshitaBhatia27/askmydocs main --force
+            git push https://Harshita-27:${HF_TOKEN}@huggingface.co/spaces/Harshita-27/Askmydocs main --force
           else
             echo "HF_TOKEN not set yet — skipping deploy"
           fi

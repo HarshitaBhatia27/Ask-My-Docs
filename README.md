@@ -1,3 +1,13 @@
+---
+title: AskMyDocs
+emoji: 📄
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+app_port: 7860
+---
+
 # AskMyDocs 📚
 **Production-grade RAG system** — upload any PDF, ask questions in natural language, get cited answers grounded strictly in the document. Zero hallucination by design.
 
