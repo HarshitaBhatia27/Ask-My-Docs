@@ -1,0 +1,27 @@
+services:
+  # FastAPI backend 
+  - type: web
+    name: askmydocs-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false          
+
+    disk:
+      name: chromadb-data
+      mountPath: /app/local_chroma_db
+      sizeGB: 1
+
+  # Streamlit frontend 
+  - type: web
+    name: askmydocs-ui
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerCommand: streamlit run app.py --server.port $PORT --server.address=0.0.0.0
+    envVars:
+      - key: API_URL
+        sync: false         
+                          

@@ -1,5 +1,10 @@
+import os
 import streamlit as st
 import requests
+
+# In Docker Compose, FastAPI is reachable at http://fastapi:8000 (service name).
+# In production (Render), set API_URL to the deployed FastAPI service URL.
+API_URL = os.getenv("API_URL", "http://fastapi:8000")
 
 st.set_page_config(page_title="AskMyDocs", page_icon="📚")
 st.title("📚 AskMyDocs")
@@ -19,7 +24,7 @@ if uploaded_file:
     if uploaded_file.name != st.session_state.last_file:
         with st.spinner("Reading and indexing your document..."):
             files = {"file": (uploaded_file.name, uploaded_file, "application/pdf")}
-            index_response = requests.post("http://fastapi:8000/upload", files=files)
+            index_response = requests.post(f"{API_URL}/upload", files=files)
 
         if index_response.status_code == 200:
             st.session_state.indexed = True
@@ -45,7 +50,7 @@ if st.session_state.indexed:
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 response = requests.post(
-                    "http://fastapi:8000/ask",
+                    f"{API_URL}/ask",
                     json={"question": question},
                     timeout=120
                 )
