@@ -26,15 +26,20 @@ def build_vector_store_from_file(file_path: str):
     print(f"Loaded {len(documents)} pages")
 
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200   # reduced from 400 — halves chunk count, ~2x faster indexing
+        chunk_size=1500,
+        chunk_overlap=50    # large chunks + tiny overlap = fewest chunks possible
     )
     chunks = splitter.split_documents(documents)
     print(f"Created {len(chunks)} chunks")
 
-    Chroma.from_documents(
-        documents=chunks,
-        embedding=get_embeddings(),
-        persist_directory=DB_PATH
-    )
+    # Insert in batches of 500 to avoid memory spikes on HF Spaces free CPU
+    batch_size = 500
+    embeddings = get_embeddings()
+    for i in range(0, len(chunks), batch_size):
+        batch = chunks[i:i + batch_size]
+        if i == 0:
+            db = Chroma.from_documents(batch, embedding=embeddings, persist_directory=DB_PATH)
+        else:
+            db.add_documents(batch)
+        print(f"Indexed {min(i + batch_size, len(chunks))}/{len(chunks)} chunks")
     print("Vector store ready.")
