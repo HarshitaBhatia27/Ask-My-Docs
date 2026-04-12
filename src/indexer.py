@@ -9,17 +9,11 @@ from src.retriever import get_embeddings_cached as get_embeddings
 DB_PATH = os.getenv("CHROMA_PATH", "/tmp/local_chroma_db")
 
 def build_vector_store_from_file(file_path: str):
+    # Completely remove and recreate — avoids ChromaDB schema mismatch errors
     if os.path.exists(DB_PATH):
-        # Delete contents, not the directory itself (volume mount stays intact)
-        for item in os.listdir(DB_PATH):
-            item_path = os.path.join(DB_PATH, item)
-            if os.path.isfile(item_path) or os.path.islink(item_path):
-                os.unlink(item_path)
-            elif os.path.isdir(item_path):
-                shutil.rmtree(item_path)
+        shutil.rmtree(DB_PATH)
         print("Cleared old vector store")
-    else:
-        os.makedirs(DB_PATH, exist_ok=True)
+    os.makedirs(DB_PATH, exist_ok=True)
     print(f"Loading {file_path}...")
     loader = PyPDFLoader(file_path)
     documents = loader.load()
